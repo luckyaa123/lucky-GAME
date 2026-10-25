@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LUCKY - Survival Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #2ecc71; /* Green theme */
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      color: white;
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      margin: 20px auto;
+      background: #27ae60;
+      border: 5px solid #fff;
+      border-radius: 10px;
+    }
+    #coins {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>LUCKY 🍀</h1>
+  <p>Survive the task, collect coins, unlock characters!</p>
+  <canvas id="gameCanvas" width="500" height="400"></canvas>
+  <div id="coins">Coins: 0</div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let coins = 0;
+    let player = { x: 50, y: 350, width: 40, height: 40, color: 'yellow' };
+    let obstacles = [];
+    let coinItems = [];
+
+    // Draw player
+    function drawPlayer() {
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    // Draw obstacles
+    function drawObstacles() {
+      ctx.fillStyle = 'red';
+      obstacles.forEach(o => {
+        ctx.fillRect(o.x, o.y, o.width, o.height);
+      });
+    }
+
+    // Draw coins
+    function drawCoins() {
+      ctx.fillStyle = 'gold';
+      coinItems.forEach(c => {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 10, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    // Update game
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPlayer();
+      drawObstacles();
+      drawCoins();
+
+      // Move obstacles
+      obstacles.forEach(o => {
+        o.x -= 2;
+      });
+
+      // Move coins
+      coinItems.forEach(c => {
+        c.x -= 2;
+      });
+
+      // Collision detection
+      coinItems = coinItems.filter(c => {
+        if (
+          player.x < c.x + 10 &&
+          player.x + player.width > c.x - 10 &&
+          player.y < c.y + 10 &&
+          player.y + player.height > c.y - 10
+        ) {
+          coins++;
+          document.getElementById('coins').textContent = "Coins: " + coins;
+          return false;
+        }
+        return true;
+      });
+
+      requestAnimationFrame(update);
+    }
+
+    // Spawn obstacles
+    setInterval(() => {
+      obstacles.push({ x: 500, y: 360, width: 40, height: 40 });
+    }, 2000);
+
+    // Spawn coins
+    setInterval(() => {
+      coinItems.push({ x: 500, y: Math.random() * 300 + 50 });
+    }, 3000);
+
+    // Player controls
+    document.addEventListener('keydown', e => {
+      if (e.code === 'ArrowUp' && player.y > 0) player.y -= 20;
+      if (e.code === 'ArrowDown' && player.y < canvas.height - player.height) player.y += 20;
+    });
+
+    update();
+  </script>
+</body>
+</html>
